@@ -9,28 +9,20 @@ class Filename
     @path = File.expand_path(path)
   end
 
-  def exists?
-    File.exists?(@path)
-  end
+  method_map = {
+    # Filename# => File#
+    :exists?    => :exists?,
+    :directory? => :directory?,
+    :file?      => :file?,
+    :symlink?   => :symlink?,
+    :target     => :readlink,
+    :realpath   => :realpath,
+  }
 
-  def directory?
-    File.directory?(@path)
-  end
-
-  def file?
-    File.file?(@path)
-  end
-
-  def symlink?
-    File.symlink?(@path)
-  end
-
-  def readlink
-    File.readlink(@path)
-  end
-
-  def realpath
-    File.realpath(@path)
+  method_map.each do |ours, theirs|
+    self.send(:define_method, ours) do |*args, &block|
+      File.method(theirs).call(@path)
+    end
   end
 
   def to_s
