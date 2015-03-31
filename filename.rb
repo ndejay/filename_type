@@ -1,14 +1,14 @@
 class String
-  def to_filename
-    Filename.new(self)
+  def to_fn
+    Filename.new(dup)
+  end
+
+  def to_fn!
+    Filename.new(File.expand_path(dup))
   end
 end
 
-class Filename
-  def initialize(path)
-    @path = File.expand_path(path)
-  end
-
+class Filename < String
   method_map = {
     # Filename# => File#
     :exists?    => :exists?,
@@ -19,13 +19,10 @@ class Filename
     :realpath   => :realpath,
   }
 
+  # Filename#method calls File.method(filename)
   method_map.each do |ours, theirs|
-    self.send(:define_method, ours) do |*args, &block|
-      File.method(theirs).call(@path)
+    send(:define_method, ours) do |*args, &block|
+      File.method(theirs).call(dup)
     end
-  end
-
-  def to_s
-    @path
   end
 end
