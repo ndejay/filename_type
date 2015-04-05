@@ -1,13 +1,3 @@
-class String
-  def to_fn
-    Filename.new(dup)
-  end
-
-  def to_fn!
-    Filename.new(File.expand_path(dup))
-  end
-end
-
 class Filename < String
   method_map = {
     # Filename# => File#
